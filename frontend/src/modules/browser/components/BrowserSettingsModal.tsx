@@ -134,7 +134,7 @@ export function BrowserSettingsModal({ open, onClose, settings: initSettings, co
           <FormItem label="默认启动页面（每行一个 URL）">
             <Textarea value={startUrlsText} onChange={e => setStartUrlsText(e.target.value)} rows={4} placeholder="启动 URL" />
           </FormItem>
-          <FormItem label="恢复上次关闭的标签页" hint="关闭后只打开上面配置的默认页面或空白页">
+          <FormItem label="恢复上次关闭的标签页" hint="开启后优先恢复关闭前标签页；关闭时打开上面配置的默认页面或空白页">
             <div className="flex items-center justify-between rounded-lg border border-[var(--color-border-default)] px-3 py-2">
               <div>
                 <p className="text-sm text-[var(--color-text-primary)]">允许恢复旧 tab</p>

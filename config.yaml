@@ -9,7 +9,7 @@ app:
         height: 1000
         min_width: 1200
         min_height: 700
-    max_profile_limit: 20
+    max_profile_limit: 9999
     used_cd_keys: []
 runtime:
     max_memory_mb: 0
@@ -48,6 +48,27 @@ browser:
     restore_last_session: false
     start_ready_timeout_ms: 3000
     start_stable_window_ms: 1200
+    extensions:
+        - extension_id: ext-20260529105400-844317aa
+          name: Tampermonkey
+          description: Change the web at will with userscripts
+          version: 5.5.0
+          manifest_version: 3
+          install_path: data/extensions/ext-20260529105400-844317aa
+          source_path: https://chromewebstore.google.com/detail/tampermonkey/dhdgffkkebhmkfjojejmpbldmpobfkfo?hl=zh-CN&utm_source=chrome-ntp-launcher
+          source_type: chrome_web_store
+          enabled: false
+          imported_at: "2026-05-29T10:54:00+08:00"
+          updated_at: "2026-05-31T10:08:44+08:00"
+    cores:
+        - core_id: core-1780023738158
+          core_name: Chrome 144
+          core_path: chrome/144
+          is_default: false
+    proxies:
+        - proxy_id: __direct__
+          proxy_name: 直连（不走代理）
+          proxy_config: direct://
 proxy_check:
     bridge_start_timeout_ms: 15000
     speed_target_id: ""

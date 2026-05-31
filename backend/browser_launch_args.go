@@ -16,6 +16,10 @@ var managedLaunchArgSpecs = []managedLaunchArgSpec{
 	{prefix: "--remote-debugging-address", takesValue: true},
 	{prefix: "--remote-debugging-pipe", takesValue: false},
 	{prefix: "--proxy-server", takesValue: true},
+	{prefix: "--restore-last-session", takesValue: false},
+	{prefix: "--load-extension", takesValue: true},
+	{prefix: "--disable-extensions", takesValue: false},
+	{prefix: "--disable-extensions-except", takesValue: true},
 }
 
 func sanitizeManagedLaunchArgs(args []string) ([]string, []string) {

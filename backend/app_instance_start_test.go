@@ -429,6 +429,10 @@ func TestSanitizeManagedLaunchArgsRemovesSystemManagedFlags(t *testing.T) {
 		"--user-data-dir", "D:\\profiles\\demo",
 		"--proxy-server", "http://127.0.0.1:9000",
 		"--remote-debugging-pipe",
+		"--restore-last-session",
+		"--load-extension", "D:\\extensions\\a",
+		"--disable-extensions",
+		"--disable-extensions-except=D:\\extensions\\b",
 		"https://example.com",
 	})
 
@@ -442,6 +446,10 @@ func TestSanitizeManagedLaunchArgsRemovesSystemManagedFlags(t *testing.T) {
 		"--user-data-dir",
 		"--proxy-server",
 		"--remote-debugging-pipe",
+		"--restore-last-session",
+		"--load-extension",
+		"--disable-extensions",
+		"--disable-extensions-except",
 	}
 	if !reflect.DeepEqual(removed, wantRemoved) {
 		t.Fatalf("sanitizeManagedLaunchArgs removed mismatch: got=%v want=%v", removed, wantRemoved)
@@ -534,9 +542,29 @@ func TestAppendLaunchTargetsPreservesSessionRestoreWhenEnabled(t *testing.T) {
 	t.Parallel()
 
 	got := appendLaunchTargets([]string{"--disable-sync"}, nil, []string{}, false, true)
-	want := []string{"--disable-sync"}
+	want := []string{"--disable-sync", "--restore-last-session"}
 	if !reflect.DeepEqual(got, want) {
 		t.Fatalf("appendLaunchTargets should preserve session restore behavior: got=%v want=%v", got, want)
+	}
+}
+
+func TestAppendLaunchTargetsPrefersSessionRestoreOverDefaultStartURLs(t *testing.T) {
+	t.Parallel()
+
+	got := appendLaunchTargets([]string{"--disable-sync"}, nil, []string{"https://one.example/"}, false, true)
+	want := []string{"--disable-sync", "--restore-last-session"}
+	if !reflect.DeepEqual(got, want) {
+		t.Fatalf("appendLaunchTargets should prefer session restore over default start URLs: got=%v want=%v", got, want)
+	}
+}
+
+func TestAppendLaunchTargetsDoesNotDuplicateRestoreLastSessionArg(t *testing.T) {
+	t.Parallel()
+
+	got := appendLaunchTargets([]string{"--disable-sync", "--restore-last-session"}, nil, []string{}, false, true)
+	want := []string{"--disable-sync", "--restore-last-session"}
+	if !reflect.DeepEqual(got, want) {
+		t.Fatalf("appendLaunchTargets should not duplicate restore arg: got=%v want=%v", got, want)
 	}
 }
 

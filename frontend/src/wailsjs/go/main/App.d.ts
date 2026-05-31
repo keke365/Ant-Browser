@@ -93,6 +93,22 @@ export function BrowserCoreValidate(arg1:string):Promise<browser.CoreValidateRes
 
 export function BrowserExportCookies(arg1:string):Promise<string>;
 
+export function BrowserExtensionDelete(arg1:string,arg2:boolean):Promise<void>;
+
+export function BrowserExtensionImportChromeWebStoreURL(arg1:string):Promise<config.BrowserExtension>;
+
+export function BrowserExtensionImportLocalDirectory():Promise<config.BrowserExtension>;
+
+export function BrowserExtensionImportLocalPackage():Promise<config.BrowserExtension>;
+
+export function BrowserExtensionImportPath(arg1:string):Promise<config.BrowserExtension>;
+
+export function BrowserExtensionList():Promise<Array<config.BrowserExtension>>;
+
+export function BrowserExtensionOpen(arg1:string):Promise<void>;
+
+export function BrowserExtensionSetEnabled(arg1:string,arg2:boolean):Promise<config.BrowserExtension>;
+
 export function BrowserGetAllTags():Promise<Array<string>>;
 
 export function BrowserGetCookies(arg1:string):Promise<Array<backend.CookieInfo>>;

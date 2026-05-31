@@ -159,6 +159,22 @@ export interface BrowserBookmark {
   openOnStart?: boolean
 }
 
+export interface BrowserExtension {
+  extensionId: string
+  name: string
+  description?: string
+  version?: string
+  manifestVersion?: number
+  installPath: string
+  sourcePath?: string
+  sourceType?: string
+  enabled: boolean
+  importedAt: string
+  updatedAt: string
+  pathExists: boolean
+  iconDataUrl?: string
+}
+
 export interface BookmarkSyncResult {
   total: number
   synced: number

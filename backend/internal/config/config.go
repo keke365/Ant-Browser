@@ -149,6 +149,7 @@ type BrowserConfig struct {
 	StartReadyTimeoutMs    int                    `yaml:"start_ready_timeout_ms,omitempty"`
 	StartStableWindowMs    int                    `yaml:"start_stable_window_ms,omitempty"`
 	DefaultBookmarks       []BrowserBookmark      `yaml:"default_bookmarks,omitempty"`
+	Extensions             []BrowserExtension     `yaml:"extensions,omitempty"`
 	Cores                  []BrowserCore          `yaml:"cores,omitempty"`
 	Proxies                []BrowserProxy         `yaml:"proxies,omitempty"`
 	Profiles               []BrowserProfileConfig `yaml:"profiles,omitempty"`
@@ -160,6 +161,22 @@ type BrowserConfig struct {
 	DefaultCoreId          string                 `yaml:"default_core_id,omitempty"`
 	DefaultConnectorType   string                 `yaml:"default_connector_type,omitempty"`
 	Environments           []BrowserEnvironment   `yaml:"environments,omitempty"`
+}
+
+type BrowserExtension struct {
+	ExtensionId     string `yaml:"extension_id" json:"extensionId"`
+	Name            string `yaml:"name" json:"name"`
+	Description     string `yaml:"description,omitempty" json:"description,omitempty"`
+	Version         string `yaml:"version,omitempty" json:"version,omitempty"`
+	ManifestVersion int    `yaml:"manifest_version,omitempty" json:"manifestVersion,omitempty"`
+	InstallPath     string `yaml:"install_path" json:"installPath"`
+	SourcePath      string `yaml:"source_path,omitempty" json:"sourcePath,omitempty"`
+	SourceType      string `yaml:"source_type,omitempty" json:"sourceType,omitempty"`
+	Enabled         bool   `yaml:"enabled" json:"enabled"`
+	ImportedAt      string `yaml:"imported_at" json:"importedAt"`
+	UpdatedAt       string `yaml:"updated_at" json:"updatedAt"`
+	PathExists      bool   `yaml:"-" json:"pathExists"`
+	IconDataURL     string `yaml:"-" json:"iconDataUrl,omitempty"`
 }
 
 type BrowserCore struct {

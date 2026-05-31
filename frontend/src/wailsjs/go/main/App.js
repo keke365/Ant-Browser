@@ -170,6 +170,38 @@ export function BrowserExportCookies(arg1) {
   return window['go']['main']['App']['BrowserExportCookies'](arg1);
 }
 
+export function BrowserExtensionDelete(arg1, arg2) {
+  return window['go']['main']['App']['BrowserExtensionDelete'](arg1, arg2);
+}
+
+export function BrowserExtensionImportChromeWebStoreURL(arg1) {
+  return window['go']['main']['App']['BrowserExtensionImportChromeWebStoreURL'](arg1);
+}
+
+export function BrowserExtensionImportLocalDirectory() {
+  return window['go']['main']['App']['BrowserExtensionImportLocalDirectory']();
+}
+
+export function BrowserExtensionImportLocalPackage() {
+  return window['go']['main']['App']['BrowserExtensionImportLocalPackage']();
+}
+
+export function BrowserExtensionImportPath(arg1) {
+  return window['go']['main']['App']['BrowserExtensionImportPath'](arg1);
+}
+
+export function BrowserExtensionList() {
+  return window['go']['main']['App']['BrowserExtensionList']();
+}
+
+export function BrowserExtensionOpen(arg1) {
+  return window['go']['main']['App']['BrowserExtensionOpen'](arg1);
+}
+
+export function BrowserExtensionSetEnabled(arg1, arg2) {
+  return window['go']['main']['App']['BrowserExtensionSetEnabled'](arg1, arg2);
+}
+
 export function BrowserGetAllTags() {
   return window['go']['main']['App']['BrowserGetAllTags']();
 }

@@ -91,6 +91,7 @@ func backupMergeConfig(current, incoming *config.Config) *config.Config {
 		merged.App.Name = incoming.App.Name
 	}
 	merged.Browser.DefaultBookmarks = backupMergeBookmarks(merged.Browser.DefaultBookmarks, incoming.Browser.DefaultBookmarks)
+	merged.Browser.Extensions = backupMergeExtensions(merged.Browser.Extensions, incoming.Browser.Extensions)
 	merged.Browser.Cores = backupMergeCores(merged.Browser.Cores, incoming.Browser.Cores)
 	merged.Browser.Proxies = backupMergeProxies(merged.Browser.Proxies, incoming.Browser.Proxies)
 	merged.Browser.Profiles = backupMergeProfiles(merged.Browser.Profiles, incoming.Browser.Profiles)
@@ -111,6 +112,43 @@ func backupUnionStrings(a, b []string) []string {
 		}
 		seen[key] = struct{}{}
 		out = append(out, item)
+	}
+	return out
+}
+
+func backupMergeExtensions(a, b []config.BrowserExtension) []config.BrowserExtension {
+	seenID := map[string]struct{}{}
+	seenPath := map[string]struct{}{}
+	out := make([]config.BrowserExtension, 0, len(a)+len(b))
+	appendOne := func(item config.BrowserExtension) {
+		idKey := strings.ToLower(strings.TrimSpace(item.ExtensionId))
+		pathKey := strings.ToLower(strings.TrimSpace(item.InstallPath))
+		if idKey == "" && pathKey == "" {
+			return
+		}
+		if idKey != "" {
+			if _, ok := seenID[idKey]; ok {
+				return
+			}
+		}
+		if pathKey != "" {
+			if _, ok := seenPath[pathKey]; ok {
+				return
+			}
+		}
+		if idKey != "" {
+			seenID[idKey] = struct{}{}
+		}
+		if pathKey != "" {
+			seenPath[pathKey] = struct{}{}
+		}
+		out = append(out, item)
+	}
+	for _, item := range a {
+		appendOne(item)
+	}
+	for _, item := range b {
+		appendOne(item)
 	}
 	return out
 }

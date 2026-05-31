@@ -98,10 +98,23 @@ func browserRestoreLastSession(cfg *config.Config) bool {
 	return cfg.Browser.RestoreLastSession
 }
 
+func appendRestoreLastSessionArg(args []string) []string {
+	for _, arg := range args {
+		if strings.EqualFold(strings.TrimSpace(arg), "--restore-last-session") {
+			return args
+		}
+	}
+	return append(args, "--restore-last-session")
+}
+
 func appendLaunchTargets(args []string, startURLs []string, defaultStartURLs []string, skipDefaultStartURLs bool, restoreLastSession bool) []string {
 	normalizedStartURLs := normalizeNonEmptyStrings(startURLs)
 	if len(normalizedStartURLs) > 0 {
 		return browser.BuildLaunchArgs(args, normalizedStartURLs)
+	}
+
+	if restoreLastSession {
+		return appendRestoreLastSessionArg(args)
 	}
 
 	if !skipDefaultStartURLs {
@@ -111,11 +124,7 @@ func appendLaunchTargets(args []string, startURLs []string, defaultStartURLs []s
 		}
 	}
 
-	if !restoreLastSession {
-		return browser.BuildLaunchArgs(args, []string{"about:blank"})
-	}
-
-	return args
+	return browser.BuildLaunchArgs(args, []string{"about:blank"})
 }
 
 func (a *App) markProfileStoppedLocked(profileId string, profile *BrowserProfile) {
@@ -149,6 +158,7 @@ func (a *App) openBrowserWindowForRunningProfile(profile *BrowserProfile, extraL
 	args := []string{
 		fmt.Sprintf("--user-data-dir=%s", userDataDir),
 	}
+	args = appendBrowserExtensionLaunchArgs(args, a.browserEnabledExtensionDirs())
 	sanitizedExtraLaunchArgs, managedExtraArgs := sanitizeManagedLaunchArgs(extraLaunchArgs)
 	logManagedLaunchArgOverrides(logger.New("Browser"), profile.ProfileId, "running-window.extraLaunchArgs", managedExtraArgs)
 	args = append(args, sanitizedExtraLaunchArgs...)
