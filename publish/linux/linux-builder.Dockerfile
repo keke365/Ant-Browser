@@ -34,6 +34,6 @@ ENV GOPROXY="https://goproxy.cn,direct" \
     GOSUMDB="sum.golang.google.cn" \
     PATH="/root/go/bin:${PATH}"
 
-RUN go install github.com/wailsapp/wails/v2/cmd/wails@v2.11.0 \
+RUN go install github.com/wailsapp/wails/v2/cmd/wails@v2.12.0 \
   && ln -sf /root/go/bin/wails /usr/local/bin/wails
 WORKDIR /workspace

@@ -108,6 +108,7 @@ require_cmd python3
 require_cmd tar
 require_cmd dpkg-deb
 require_cmd wails
+require_cmd pkg-config
 
 if [[ -z "$VERSION" ]]; then
   VERSION="$(python3 - "$ROOT_DIR/wails.json" <<'PY'
@@ -178,6 +179,15 @@ if [[ ! -f "$WAILS_CONFIG" ]]; then
 fi
 
 if [[ "$SKIP_BUILD" -ne 1 ]]; then
+  WAILS_BUILD_ARGS=(-s -platform "linux/$ARCH" -o ant-chrome)
+  if pkg-config --exists webkit2gtk-4.1; then
+    WAILS_BUILD_ARGS+=(-tags webkit2_41)
+  elif ! pkg-config --exists webkit2gtk-4.0; then
+    echo "[ERROR] neither webkit2gtk-4.1 nor webkit2gtk-4.0 was found by pkg-config" >&2
+    echo "        Install libwebkit2gtk-4.1-dev on Ubuntu 24.04, or libwebkit2gtk-4.0-dev on older Debian/Ubuntu releases." >&2
+    exit 1
+  fi
+
   echo "[1/5] Installing frontend dependencies..."
   (cd "$ROOT_DIR/frontend" && BROWSERSLIST_IGNORE_OLD_DATA=1 npm ci --prefer-offline --no-audit --no-fund)
 
@@ -188,7 +198,7 @@ if [[ "$SKIP_BUILD" -ne 1 ]]; then
   rm -f "$APP_BIN"
   (
     cd "$ROOT_DIR"
-    wails build -s -platform "linux/$ARCH" -o ant-chrome
+    wails build "${WAILS_BUILD_ARGS[@]}"
   )
 else
   echo "[WARN] skipping build step"

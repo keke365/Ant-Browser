@@ -67,10 +67,7 @@ jobs:
             $publishArgs += @("-Version", $env:VERSION.Trim())
           }
 
-          & .\bat\publish.bat @publishArgs
-          if ($LASTEXITCODE -ne 0) {
-            exit $LASTEXITCODE
-          }
+          & .\bat\publish.ps1 @publishArgs
 
       - name: Validate installer output
         shell: pwsh

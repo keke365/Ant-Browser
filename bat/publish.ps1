@@ -62,6 +62,33 @@ function Invoke-NativeCommand {
     }
 }
 
+function Get-Sha256FileHash {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$LiteralPath
+    )
+
+    $getFileHashCommand = Get-Command Get-FileHash -ErrorAction SilentlyContinue
+    if ($getFileHashCommand) {
+        return (Get-FileHash -Algorithm SHA256 -LiteralPath $LiteralPath).Hash.ToLowerInvariant()
+    }
+
+    $stream = [System.IO.File]::OpenRead($LiteralPath)
+    try {
+        $sha256 = [System.Security.Cryptography.SHA256]::Create()
+        try {
+            $hashBytes = $sha256.ComputeHash($stream)
+            return ([System.BitConverter]::ToString($hashBytes)).Replace("-", "").ToLowerInvariant()
+        }
+        finally {
+            $sha256.Dispose()
+        }
+    }
+    finally {
+        $stream.Dispose()
+    }
+}
+
 function Assert-RequiredSourceFiles {
     param(
         [Parameter(Mandatory = $true)]
@@ -307,7 +334,7 @@ function Assert-RuntimeHashes {
             continue
         }
 
-        $actualHash = (Get-FileHash -Algorithm SHA256 -LiteralPath $fullPath).Hash.ToLowerInvariant()
+        $actualHash = Get-Sha256FileHash -LiteralPath $fullPath
         if ($actualHash -ne $expectedHash) {
             $errors.Add("${relativePath}: sha256 mismatch (expected $expectedHash, got $actualHash)")
         }
