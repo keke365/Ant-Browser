@@ -12,7 +12,9 @@ type ProxyDAO interface {
 	ListByGroup(groupName string) ([]Proxy, error)
 	ListGroups() ([]string, error)
 	Upsert(proxy Proxy) error
+	UpsertMany(proxies []Proxy) error
 	Delete(proxyId string) error
+	DeleteBySourceID(sourceID string) (int64, error)
 	DeleteAll() error
 	UpdateSpeedResult(proxyId string, ok bool, latencyMs int64, testedAt string) error
 	UpdateIPHealthResult(proxyId string, healthJSON string) error
@@ -120,6 +122,62 @@ func (d *SQLiteProxyDAO) Upsert(proxy Proxy) error {
 	return nil
 }
 
+// UpsertMany 在事务内批量新增或更新代理。
+func (d *SQLiteProxyDAO) UpsertMany(proxies []Proxy) error {
+	if len(proxies) == 0 {
+		return nil
+	}
+	tx, err := d.db.Begin()
+	if err != nil {
+		return fmt.Errorf("开启代理批量保存事务失败: %w", err)
+	}
+	defer tx.Rollback()
+
+	stmt, err := tx.Prepare(`
+		INSERT INTO browser_proxies (
+		  proxy_id, proxy_name, proxy_config, dns_servers, group_name,
+		  source_id, source_url, source_name_prefix, source_auto_refresh, source_refresh_interval_m, source_last_refresh_at,
+		  sort_order, created_at
+		)
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+		ON CONFLICT(proxy_id) DO UPDATE SET
+		  proxy_name   = excluded.proxy_name,
+		  proxy_config = excluded.proxy_config,
+		  dns_servers  = excluded.dns_servers,
+		  group_name   = excluded.group_name,
+		  source_id    = excluded.source_id,
+		  source_url   = excluded.source_url,
+		  source_name_prefix = excluded.source_name_prefix,
+		  source_auto_refresh = excluded.source_auto_refresh,
+		  source_refresh_interval_m = excluded.source_refresh_interval_m,
+		  source_last_refresh_at = excluded.source_last_refresh_at,
+		  sort_order   = excluded.sort_order`)
+	if err != nil {
+		return fmt.Errorf("准备代理批量保存语句失败: %w", err)
+	}
+	defer stmt.Close()
+
+	now := time.Now().Format(time.RFC3339)
+	for _, proxy := range proxies {
+		autoRefreshInt := 0
+		if proxy.SourceAutoRefresh {
+			autoRefreshInt = 1
+		}
+		if _, err := stmt.Exec(
+			proxy.ProxyId, proxy.ProxyName, proxy.ProxyConfig, proxy.DnsServers, proxy.GroupName,
+			proxy.SourceID, proxy.SourceURL, proxy.SourceNamePrefix, autoRefreshInt, proxy.SourceRefreshIntervalM, proxy.SourceLastRefreshAt,
+			proxy.SortOrder, now,
+		); err != nil {
+			return fmt.Errorf("批量保存代理失败: %w", err)
+		}
+	}
+
+	if err := tx.Commit(); err != nil {
+		return fmt.Errorf("提交代理批量保存事务失败: %w", err)
+	}
+	return nil
+}
+
 // Delete 删除单个代理
 func (d *SQLiteProxyDAO) Delete(proxyId string) error {
 	_, err := d.db.Exec(`DELETE FROM browser_proxies WHERE proxy_id = ?`, proxyId)
@@ -127,6 +185,16 @@ func (d *SQLiteProxyDAO) Delete(proxyId string) error {
 		return fmt.Errorf("删除代理失败: %w", err)
 	}
 	return nil
+}
+
+// DeleteBySourceID 删除指定订阅来源的所有代理。
+func (d *SQLiteProxyDAO) DeleteBySourceID(sourceID string) (int64, error) {
+	result, err := d.db.Exec(`DELETE FROM browser_proxies WHERE source_id = ?`, sourceID)
+	if err != nil {
+		return 0, fmt.Errorf("删除订阅代理失败: %w", err)
+	}
+	affected, _ := result.RowsAffected()
+	return affected, nil
 }
 
 // DeleteAll 清空代理表（批量保存前使用）

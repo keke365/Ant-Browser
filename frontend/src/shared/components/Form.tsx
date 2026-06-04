@@ -1,4 +1,4 @@
-﻿import { ReactNode, InputHTMLAttributes, SelectHTMLAttributes, TextareaHTMLAttributes } from 'react'
+﻿import { CSSProperties, ReactNode, InputHTMLAttributes, SelectHTMLAttributes, TextareaHTMLAttributes } from 'react'
 import clsx from 'clsx'
 
 interface FormItemProps {
@@ -56,12 +56,13 @@ interface SelectProps extends SelectHTMLAttributes<HTMLSelectElement> {
   options: { value: string; label: string }[]
 }
 
-export function Select({ error, options, className, ...props }: SelectProps) {
+export function Select({ error, options, className, style, ...props }: SelectProps) {
   return (
     <select
+      style={{ colorScheme: 'var(--color-scheme)', ...style } as CSSProperties}
       className={clsx(
         'block h-9 px-3 text-sm',
-        'bg-[var(--color-bg-surface)] text-[var(--color-text-primary)]',
+        'bg-[var(--color-bg-input)] text-[var(--color-text-primary)]',
         'border border-[var(--color-border-default)] rounded-lg',
         'focus:outline-none focus:border-[var(--color-border-strong)] focus:ring-1 focus:ring-[var(--color-border-strong)]',
         'disabled:bg-[var(--color-bg-muted)] disabled:text-[var(--color-text-muted)] disabled:cursor-not-allowed',

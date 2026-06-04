@@ -4,6 +4,7 @@ import (
 	"ant-chrome/backend/internal/browser"
 	"ant-chrome/backend/internal/config"
 	"ant-chrome/backend/internal/logger"
+	"fmt"
 	"strings"
 	"time"
 )
@@ -34,6 +35,28 @@ func (a *App) BrowserGetAllTags() []string {
 // BrowserProfileSetKeywords 设置实例关键字
 func (a *App) BrowserProfileSetKeywords(profileId string, keywords []string) (*BrowserProfile, error) {
 	return a.browserMgr.SetKeywords(profileId, keywords)
+}
+
+// BrowserProfileSetProxy 仅更新实例代理绑定，保留实例其它配置不变。
+func (a *App) BrowserProfileSetProxy(profileId string, proxyId string, proxyConfig string) (*BrowserProfile, error) {
+	current := a.browserMgr.List()
+	for _, profile := range current {
+		if strings.EqualFold(profile.ProfileId, strings.TrimSpace(profileId)) {
+			return a.browserMgr.Update(profile.ProfileId, BrowserProfileInput{
+				ProfileName:     profile.ProfileName,
+				UserDataDir:     profile.UserDataDir,
+				CoreId:          profile.CoreId,
+				FingerprintArgs: append([]string{}, profile.FingerprintArgs...),
+				ProxyId:         strings.TrimSpace(proxyId),
+				ProxyConfig:     strings.TrimSpace(proxyConfig),
+				LaunchArgs:      append([]string{}, profile.LaunchArgs...),
+				Tags:            append([]string{}, profile.Tags...),
+				Keywords:        append([]string{}, profile.Keywords...),
+				GroupId:         profile.GroupId,
+			})
+		}
+	}
+	return nil, fmt.Errorf("profile not found")
 }
 
 func (a *App) BrowserProfileCreate(input BrowserProfileInput) (*BrowserProfile, error) {

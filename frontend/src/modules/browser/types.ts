@@ -111,6 +111,65 @@ export interface BrowserProxy {
   lastIPHealthJson?: string
 }
 
+export interface ProxySourceSummary {
+  sourceId: string
+  sourceUrl: string
+  sourceNamePrefix: string
+  groupName: string
+  dnsServers: string
+  sourceAutoRefresh: boolean
+  sourceRefreshIntervalM: number
+  sourceLastRefreshAt: string
+  proxyCount: number
+}
+
+export interface ProxyImportClashRequest {
+  sourceId?: string
+  sourceUrl?: string
+  content: string
+  namePrefix?: string
+  groupName?: string
+  dnsServers?: string
+  sourceAutoRefresh?: boolean
+  sourceRefreshIntervalM?: number
+  keepRemoved?: boolean
+  keepNames?: string[]
+  skipNames?: string[]
+}
+
+export interface ProxySourceRefreshRequest {
+  sourceId: string
+  sourceAutoRefresh?: boolean
+  sourceRefreshIntervalM?: number
+  keepRemoved?: boolean
+  keepNames?: string[]
+  skipNames?: string[]
+}
+
+export interface ProxyImportReport {
+  sourceId: string
+  sourceUrl: string
+  added: number
+  updated: number
+  removed: number
+  skipped: number
+  failed: number
+  affectedProfileCount: number
+  reboundProfileCount: number
+  invalidProfileCount: number
+  importedProxies: BrowserProxy[]
+  skippedProxyNames: string[]
+  unsupportedProxyNames: string[]
+  errors: string[]
+}
+
+export interface ProxyReconcileReport {
+  changedProfileCount: number
+  reboundProfileCount: number
+  invalidProfileCount: number
+  invalidProfileIds: string[]
+}
+
 export interface ProxyIPHealthResult {
   proxyId: string
   ok: boolean
@@ -203,4 +262,119 @@ export interface BrowserGroupInput {
 
 export interface BrowserGroupWithCount extends BrowserGroup {
   instanceCount: number
+}
+
+export interface Site {
+  siteId: string
+  siteName: string
+  homeUrl: string
+  loginUrl: string
+  checkinUrl: string
+  readingUrl: string
+  checkinButtonRule: string
+  status: 'enabled' | 'disabled' | string
+  remark: string
+  createdAt: string
+  updatedAt: string
+}
+
+export interface SiteSummary extends Site {
+  accountCount: number
+  autoCheckinCount: number
+  autoReadCount: number
+}
+
+export interface SiteInput {
+  siteId?: string
+  siteName: string
+  homeUrl: string
+  loginUrl: string
+  checkinUrl: string
+  readingUrl: string
+  checkinButtonRule: string
+  status: 'enabled' | 'disabled' | string
+  remark: string
+}
+
+export interface SiteAccount {
+  accountId: string
+  siteId: string
+  siteName?: string
+  profileId: string
+  profileName?: string
+  username: string
+  password?: string
+  hasPassword: boolean
+  email: string
+  emailPassword?: string
+  hasEmailPassword: boolean
+  accountUrl: string
+  autoCheckinEnabled: boolean
+  checkinUrl: string
+  checkinButtonRule: string
+  autoReadEnabled: boolean
+  readingUrl: string
+  status: 'active' | 'paused' | 'invalid' | 'archived' | string
+  remark: string
+  createdAt: string
+  updatedAt: string
+}
+
+export interface SiteAccountInput {
+  accountId?: string
+  siteId: string
+  profileId: string
+  username: string
+  password: string
+  clearPassword?: boolean
+  email: string
+  emailPassword: string
+  clearEmailPassword?: boolean
+  accountUrl: string
+  autoCheckinEnabled: boolean
+  checkinUrl: string
+  checkinButtonRule: string
+  autoReadEnabled: boolean
+  readingUrl: string
+  status: 'active' | 'paused' | 'invalid' | 'archived' | string
+  remark: string
+}
+
+export interface SiteAccountFilter {
+  siteId?: string
+  profileId?: string
+  status?: string
+  keyword?: string
+  autoCheckin?: string
+  autoRead?: string
+}
+
+export interface SiteAccountTaskRun {
+  runId: string
+  taskType: string
+  siteId: string
+  accountId: string
+  profileId: string
+  status: string
+  summary: string
+  error: string
+  startedAt: string
+  finishedAt: string
+  durationMs: number
+  artifactPath: string
+}
+
+export interface SiteAccountCheckinRequest {
+  accountId?: string
+  siteId?: string
+  profileId?: string
+  filter?: SiteAccountFilter
+  concurrency?: number
+}
+
+export interface SiteAccountCheckinBatchResult {
+  total: number
+  succeeded: number
+  failed: number
+  runs: SiteAccountTaskRun[]
 }

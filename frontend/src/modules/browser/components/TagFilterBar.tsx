@@ -22,7 +22,7 @@ export function TagFilterBar({ tags, selected, onChange }: TagFilterBarProps) {
         onClick={() => onChange(new Set())}
         className={`px-2.5 py-0.5 rounded-full text-xs font-medium transition-colors cursor-pointer ${
           isAllSelected
-            ? 'bg-[var(--color-accent)] text-white'
+            ? 'bg-[var(--color-accent)] text-[var(--color-text-inverse)]'
             : 'bg-[var(--color-bg-muted)] text-[var(--color-text-muted)] hover:bg-[var(--color-bg-subtle)]'
         }`}
       >
@@ -34,7 +34,7 @@ export function TagFilterBar({ tags, selected, onChange }: TagFilterBarProps) {
           onClick={() => toggle(tag)}
           className={`px-2.5 py-0.5 rounded-full text-xs font-medium transition-colors cursor-pointer ${
             selected.has(tag)
-              ? 'bg-[var(--color-accent)] text-white'
+              ? 'bg-[var(--color-accent)] text-[var(--color-text-inverse)]'
               : 'bg-[var(--color-bg-muted)] text-[var(--color-text-muted)] hover:bg-[var(--color-bg-subtle)]'
           }`}
         >

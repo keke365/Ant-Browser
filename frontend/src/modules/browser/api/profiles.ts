@@ -122,6 +122,21 @@ export async function setProfileKeywords(profileId: string, keywords: string[]):
   return nextProfiles.find((profile) => profile.profileId === profileId) || null
 }
 
+export async function setBrowserProfileProxy(profileId: string, proxyId: string, proxyConfig: string): Promise<BrowserProfile | null> {
+  const bindings: any = await getBindings()
+  if (bindings?.BrowserProfileSetProxy) {
+    return (await bindings.BrowserProfileSetProxy(profileId, proxyId, proxyConfig)) || null
+  }
+
+  const nextProfiles = getMockProfiles().map((profile) =>
+    profile.profileId === profileId
+      ? { ...profile, proxyId, proxyConfig, updatedAt: nowISOString() }
+      : profile,
+  )
+  setMockProfiles(nextProfiles)
+  return nextProfiles.find((profile) => profile.profileId === profileId) || null
+}
+
 export async function getBrowserProfileCode(profileId: string): Promise<string> {
   const bindings: any = await getBindings()
   if (bindings?.BrowserProfileGetCode) {

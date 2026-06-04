@@ -35,6 +35,7 @@ export const navigationConfig: NavSection[] = [
     title: '指纹浏览器',
     items: [
       { name: '实例列表', path: '/browser/list', icon: 'Monitor' },
+      { name: '站点账号', path: '/browser/site-accounts', icon: 'Users' },
       { name: '自动化脚本', path: '/browser/automation', icon: 'Bot' },
       { name: '内核管理', path: '/browser/cores', icon: 'Cpu' },
       { name: '插件管理', path: '/browser/extensions', icon: 'Puzzle' },

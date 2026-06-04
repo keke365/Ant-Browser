@@ -153,6 +153,8 @@ export function BrowserProfileSetCode(arg1:string,arg2:string):Promise<string>;
 
 export function BrowserProfileSetKeywords(arg1:string,arg2:Array<string>):Promise<browser.Profile>;
 
+export function BrowserProfileSetProxy(arg1:string,arg2:string,arg3:string):Promise<browser.Profile>;
+
 export function BrowserProfileUpdate(arg1:string,arg2:browser.ProfileInput):Promise<browser.Profile>;
 
 export function BrowserProxyBatchCheckIPHealth(arg1:Array<string>,arg2:number):Promise<Array<backend.ProxyIPHealthResult>>;
@@ -163,11 +165,19 @@ export function BrowserProxyCheckIPHealth(arg1:string):Promise<backend.ProxyIPHe
 
 export function BrowserProxyFetchClashByURL(arg1:string):Promise<Record<string, any>>;
 
+export function BrowserProxyImportClash(arg1:backend.ProxyImportClashRequest):Promise<backend.ProxyImportReport>;
+
 export function BrowserProxyList():Promise<Array<config.BrowserProxy>>;
 
 export function BrowserProxyListByGroup(arg1:string):Promise<Array<config.BrowserProxy>>;
 
 export function BrowserProxyListGroups():Promise<Array<string>>;
+
+export function BrowserProxyListSources():Promise<Array<backend.ProxySourceSummary>>;
+
+export function BrowserProxyReconcileBindings():Promise<backend.ProxyReconcileReport>;
+
+export function BrowserProxyRefreshSource(arg1:backend.ProxySourceRefreshRequest):Promise<backend.ProxyImportReport>;
 
 export function BrowserProxyTestSpeed(arg1:string):Promise<backend.ProxyTestResult>;
 
@@ -250,6 +260,40 @@ export function SaveBrowserSettings(arg1:browser.Settings):Promise<void>;
 export function SaveProxyCheckSettings(arg1:config.ProxyCheckConfig):Promise<void>;
 
 export function SetLogLevel(arg1:string):Promise<void>;
+
+export function SiteAccountDelete(arg1:string):Promise<void>;
+
+export function SiteAccountGet(arg1:string,arg2:boolean):Promise<backend.SiteAccount>;
+
+export function SiteAccountList(arg1:backend.SiteAccountFilter):Promise<Array<backend.SiteAccount>>;
+
+export function SiteAccountListByProfile(arg1:string):Promise<Array<backend.SiteAccount>>;
+
+export function SiteAccountQuickOpen(arg1:string,arg2:string):Promise<browser.Profile>;
+
+export function SiteAccountRunCheckin(arg1:backend.SiteAccountCheckinRequest):Promise<backend.SiteAccountCheckinBatchResult>;
+
+export function SiteAccountRunCheckinByID(arg1:string):Promise<backend.SiteAccountCheckinBatchResult>;
+
+export function SiteAccountRunReading(arg1:backend.SiteAccountCheckinRequest):Promise<backend.SiteAccountCheckinBatchResult>;
+
+export function SiteAccountRunReadingByID(arg1:string):Promise<backend.SiteAccountCheckinBatchResult>;
+
+export function SiteAccountSave(arg1:backend.SiteAccountInput):Promise<backend.SiteAccount>;
+
+export function SiteAccountTaskRunList(arg1:string,arg2:number):Promise<Array<backend.SiteAccountTaskRun>>;
+
+export function SiteDelete(arg1:string):Promise<void>;
+
+export function SiteGet(arg1:string):Promise<backend.Site>;
+
+export function SiteList():Promise<Array<backend.SiteSummary>>;
+
+export function SiteRunCheckin(arg1:string):Promise<backend.SiteAccountCheckinBatchResult>;
+
+export function SiteRunReading(arg1:string):Promise<backend.SiteAccountCheckinBatchResult>;
+
+export function SiteSave(arg1:backend.SiteInput):Promise<backend.Site>;
 
 export function StartInstance(arg1:string):Promise<browser.Profile>;
 

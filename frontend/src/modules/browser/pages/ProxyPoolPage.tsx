@@ -2,7 +2,7 @@
 import { Button, ConfirmModal, FormItem, Input, Modal, Textarea, toast } from '../../../shared/components'
 import type { SortOrder } from '../../../shared/components/Table'
 import type { BrowserProxy, ProxyCheckSettings, ProxyIPHealthResult } from '../types'
-import { createDefaultProxyCheckSettings, fetchBrowserProxies, fetchBrowserProxyGroups, saveBrowserProxies, browserProxyTestSpeed, browserProxyBatchTestSpeed, browserProxyCheckIPHealth, browserProxyBatchCheckIPHealth, fetchClashImportFromURL, fetchProxyCheckSettings, saveProxyCheckSettings } from '../api'
+import { createDefaultProxyCheckSettings, fetchBrowserProxies, fetchBrowserProxyGroups, saveBrowserProxies, browserProxyTestSpeed, browserProxyBatchTestSpeed, browserProxyCheckIPHealth, browserProxyBatchCheckIPHealth, fetchClashImportFromURL, fetchProxyCheckSettings, saveProxyCheckSettings, importClashProxies, refreshClashProxySource } from '../api'
 import { EventsOn } from '../../../wailsjs/runtime/runtime'
 import {
   BUILTIN_PROXY_IDS,
@@ -15,9 +15,7 @@ import {
   buildDirectImportCandidatesFromText,
   buildImportCandidatesFromClash,
   buildImportPreview,
-  buildRefreshedSourceProxies,
   collectURLImportSources,
-  createExistingProxyIDPicker,
   ensureBuiltinProxies,
   normalizeRefreshIntervalM,
   parseClashImportText,
@@ -32,11 +30,9 @@ import {
   type DirectImportForm,
   type ProxyDisplayInfo,
   type ProxyImportMode,
-  type URLImportSourceMeta,
 } from './proxyPool/helpers'
 import {
   appendSourceIgnoredProxyNames,
-  applyIgnoredProxyNamesForSource,
   readGlobalRefreshConfig,
   readIPHealthCache,
   readLatencyCache,
@@ -276,32 +272,20 @@ export function ProxyPoolPage() {
     })
 
     try {
-      const result = await fetchClashImportFromURL(meta.sourceUrl)
-      const parsed = parseClashImportText(result.content || '')
-      if (!parsed.length) {
-        throw new Error('订阅内容未解析到可用代理')
-      }
       const ignoredNameMap = readSourceIgnoredProxyNames()
       const sourceIgnoredNames = ignoredNameMap[sourceId] || []
-      const filteredParsed = applyIgnoredProxyNamesForSource(parsed, meta.sourceNamePrefix, sourceIgnoredNames)
-
-      const latest = proxiesRef.current
-      const oldSourceProxies = latest.filter(item => (item.sourceId || '').trim() === sourceId)
-      const refreshedAt = new Date().toISOString()
-      const effectiveMeta: URLImportSourceMeta = {
-        ...meta,
+      const report = await refreshClashProxySource({
+        sourceId,
         sourceAutoRefresh: globalAutoRefreshEnabled,
         sourceRefreshIntervalM: globalRefreshInterval,
-      }
-      const refreshedSourceProxies = buildRefreshedSourceProxies(filteredParsed, oldSourceProxies, effectiveMeta, refreshedAt)
-
-      const merged = latest
-        .filter(item => (item.sourceId || '').trim() !== sourceId)
-        .concat(refreshedSourceProxies)
-
-      await saveProxies(merged)
+        skipNames: sourceIgnoredNames,
+      })
+      await loadProxies()
       if (!silent) {
-        toast.success(`订阅刷新成功：${meta.sourceUrl}（${refreshedSourceProxies.length} 条）`)
+        const affectedText = report.reboundProfileCount || report.invalidProfileCount
+          ? `，实例重关联 ${report.reboundProfileCount}，失效 ${report.invalidProfileCount}`
+          : ''
+        toast.success(`订阅刷新成功：新增 ${report.added}，更新 ${report.updated}，移除 ${report.removed}，失败 ${report.failed}${affectedText}`)
       }
       return true
     } catch (error: any) {
@@ -316,7 +300,7 @@ export function ProxyPoolPage() {
         return next
       })
     }
-  }, [globalAutoRefreshEnabled, globalRefreshInterval, saveProxies])
+  }, [globalAutoRefreshEnabled, globalRefreshInterval])
 
   const handleRefreshAllSources = useCallback(async (silent = false) => {
     const metas = collectURLImportSources(proxiesRef.current)
@@ -855,33 +839,35 @@ export function ProxyPoolPage() {
       const isURLImport = !!sourceURL
       const sourceNamePrefix = importMode === 'clash' ? importNamePrefix.trim() : ''
       const sourceID = isURLImport ? resolveImportSourceID(proxies, sourceURL, sourceNamePrefix) : ''
-      const sourceAutoRefresh = isURLImport ? globalAutoRefreshEnabled : false
-      const sourceRefreshIntervalM = sourceAutoRefresh ? globalRefreshInterval : 0
-      const sourceLastRefreshAt = isURLImport ? new Date().toISOString() : ''
-      const oldSourceProxies = isURLImport
-        ? proxies.filter(item => (item.sourceId || '').trim() === sourceID)
-        : []
-      const pickExistingID = createExistingProxyIDPicker(oldSourceProxies)
 
-      const newProxies: BrowserProxy[] = previewList.map((p) => ({
-        proxyId: pickExistingID(p.proxyName, p.proxyConfig) || nextProxyID(),
-        proxyName: p.proxyName,
-        proxyConfig: p.proxyConfig,
-        dnsServers: importMode === 'clash' ? importDnsServers.trim() || undefined : undefined,
-        groupName: p.groupName.trim() || undefined,
-        sourceId: sourceID || undefined,
-        sourceUrl: sourceURL || undefined,
-        sourceNamePrefix: sourceNamePrefix || undefined,
-        sourceAutoRefresh,
-        sourceRefreshIntervalM,
-        sourceLastRefreshAt: sourceLastRefreshAt || undefined,
-      }))
-      const allProxies = isURLImport
-        ? proxies.filter(item => (item.sourceId || '').trim() !== sourceID).concat(newProxies)
-        : [...proxies, ...newProxies]
-      await saveProxies(allProxies)
-      if (isURLImport && removedPreviewProxyNames.length > 0) {
-        appendSourceIgnoredProxyNames(sourceID, removedPreviewProxyNames)
+      if (importMode === 'clash') {
+        const keepNames = previewList.map(item => item.proxyName)
+        const report = await importClashProxies({
+          sourceId: sourceID || undefined,
+          sourceUrl: sourceURL || undefined,
+          content: importText,
+          namePrefix: sourceNamePrefix || undefined,
+          groupName: importGroupName.trim() || undefined,
+          dnsServers: importDnsServers.trim() || undefined,
+          sourceAutoRefresh: isURLImport ? globalAutoRefreshEnabled : false,
+          sourceRefreshIntervalM: isURLImport && globalAutoRefreshEnabled ? globalRefreshInterval : 0,
+          keepNames,
+          skipNames: removedPreviewProxyNames,
+        })
+        await loadProxies()
+        if (isURLImport && removedPreviewProxyNames.length > 0) {
+          appendSourceIgnoredProxyNames(report.sourceId || sourceID, removedPreviewProxyNames)
+        }
+        toast.success(`成功导入：新增 ${report.added}，更新 ${report.updated}，跳过 ${report.skipped}，失败 ${report.failed}`)
+      } else {
+        const newProxies: BrowserProxy[] = previewList.map((p) => ({
+          proxyId: nextProxyID(),
+          proxyName: p.proxyName,
+          proxyConfig: p.proxyConfig,
+          groupName: p.groupName.trim() || undefined,
+        }))
+        await saveProxies([...proxies, ...newProxies])
+        toast.success(`成功导入 ${newProxies.length} 个代理`)
       }
       setPreviewModalOpen(false)
       setImportUrl('')
@@ -896,7 +882,6 @@ export function ProxyPoolPage() {
       setDirectImportForm({ ...INITIAL_DIRECT_IMPORT_FORM })
       setPreviewList([])
       setRemovedPreviewProxyNames([])
-      toast.success(`成功导入 ${newProxies.length} 个代理`)
     } catch (error: any) {
       toast.error(error?.message || '导入失败')
     } finally {

@@ -8,6 +8,7 @@ import (
 	"ant-chrome/backend/internal/launchcode"
 	"ant-chrome/backend/internal/logger"
 	"ant-chrome/backend/internal/proxy"
+	"ant-chrome/backend/internal/siteaccount"
 	"context"
 	"strings"
 	"sync"
@@ -22,20 +23,21 @@ const (
 
 // App 应用结构体
 type App struct {
-	ctx            context.Context
-	config         *config.Config
-	db             *database.DB
-	interceptor    *logger.MethodInterceptor
-	browserMgr     *browser.Manager
-	xrayMgr        *proxy.XrayManager
-	clashMgr       *proxy.ClashManager
-	singboxMgr     *proxy.SingBoxManager
-	launchCodeSvc  *launchcode.LaunchCodeService
-	launchServer   *launchcode.LaunchServer
-	automationMgr  *automation.Manager
-	speedScheduler *browser.ProxySpeedScheduler
-	appRoot        string
-	version        string
+	ctx              context.Context
+	config           *config.Config
+	db               *database.DB
+	interceptor      *logger.MethodInterceptor
+	browserMgr       *browser.Manager
+	xrayMgr          *proxy.XrayManager
+	clashMgr         *proxy.ClashManager
+	singboxMgr       *proxy.SingBoxManager
+	launchCodeSvc    *launchcode.LaunchCodeService
+	launchServer     *launchcode.LaunchServer
+	automationMgr    *automation.Manager
+	siteAccountStore *siteaccount.Store
+	speedScheduler   *browser.ProxySpeedScheduler
+	appRoot          string
+	version          string
 
 	forceQuit              bool
 	quitMode               quitMode

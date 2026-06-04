@@ -13,6 +13,7 @@
 
 html {
   font-size: 16px;
+  color-scheme: var(--color-scheme);
 }
 
 body {
@@ -78,6 +79,29 @@ button:disabled {
 /* 输入框重置 */
 input, select, textarea {
   font: inherit;
+}
+
+select,
+option,
+optgroup {
+  color-scheme: var(--color-scheme);
+}
+
+select {
+  background-color: var(--color-bg-surface);
+  color: var(--color-text-primary);
+  border-color: var(--color-border-default);
+}
+
+select option,
+select optgroup {
+  background-color: var(--color-bg-elevated);
+  color: var(--color-text-primary);
+}
+
+select option:checked {
+  background-color: var(--color-accent-muted);
+  color: var(--color-text-primary);
 }
 
 /* 动画 */

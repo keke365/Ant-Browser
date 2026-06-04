@@ -1,6 +1,8 @@
 /* 基础主题变量定义 - 默认使用浅色主题 */
 
 :root {
+  --color-scheme: light;
+
   --color-bg-base: #f8fafc;
   --color-bg-surface: #ffffff;
   --color-bg-elevated: #ffffff;

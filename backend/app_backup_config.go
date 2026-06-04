@@ -39,7 +39,7 @@ func (a *App) backupClearBusinessTables() error {
 	}
 	defer tx.Rollback()
 
-	tables := []string{"launch_codes", "browser_profiles", "browser_proxies", "browser_cores", "browser_bookmarks", "browser_groups"}
+	tables := []string{"launch_codes", "browser_profiles", "browser_proxies", "browser_cores", "browser_bookmarks", "browser_groups", "site_account_task_runs", "site_accounts", "sites"}
 	for _, table := range tables {
 		if _, err := tx.Exec("DELETE FROM " + table); err != nil && !backupIsNoSuchTableError(err) {
 			return fmt.Errorf("清空数据表失败(%s): %w", table, err)

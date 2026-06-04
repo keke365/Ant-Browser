@@ -1,4 +1,12 @@
-﻿import type { BrowserProxy, ProxyIPHealthResult } from '../types'
+﻿import type {
+  BrowserProxy,
+  ProxyIPHealthResult,
+  ProxyImportClashRequest,
+  ProxyImportReport,
+  ProxyReconcileReport,
+  ProxySourceRefreshRequest,
+  ProxySourceSummary,
+} from '../types'
 import { getBindings, getGoApp, getMockProxies, nowISOString, setMockProxies } from './runtime'
 
 export interface ClashImportURLResult {
@@ -37,6 +45,39 @@ export async function fetchBrowserProxiesByGroup(groupName: string): Promise<Bro
   return getMockProxies().filter((proxy) => proxy.groupName === groupName)
 }
 
+export async function fetchBrowserProxySources(): Promise<ProxySourceSummary[]> {
+  const bindings: any = await getBindings()
+  if (bindings?.BrowserProxyListSources) {
+    return (await bindings.BrowserProxyListSources()) || []
+  }
+  const sourceMap = new Map<string, ProxySourceSummary>()
+  getMockProxies().forEach((proxy) => {
+    const sourceId = (proxy.sourceId || '').trim()
+    const sourceUrl = (proxy.sourceUrl || '').trim()
+    if (!sourceId || !sourceUrl) return
+    const existing = sourceMap.get(sourceId)
+    if (!existing) {
+      sourceMap.set(sourceId, {
+        sourceId,
+        sourceUrl,
+        sourceNamePrefix: proxy.sourceNamePrefix || '',
+        groupName: proxy.groupName || '',
+        dnsServers: proxy.dnsServers || '',
+        sourceAutoRefresh: !!proxy.sourceAutoRefresh,
+        sourceRefreshIntervalM: proxy.sourceRefreshIntervalM || 0,
+        sourceLastRefreshAt: proxy.sourceLastRefreshAt || '',
+        proxyCount: 1,
+      })
+      return
+    }
+    existing.proxyCount += 1
+    if ((proxy.sourceLastRefreshAt || '') > existing.sourceLastRefreshAt) {
+      existing.sourceLastRefreshAt = proxy.sourceLastRefreshAt || ''
+    }
+  })
+  return Array.from(sourceMap.values())
+}
+
 export async function fetchClashImportFromURL(targetURL: string): Promise<ClashImportURLResult> {
   const bindings: any = await getBindings()
   if (bindings?.BrowserProxyFetchClashByURL) {
@@ -61,6 +102,61 @@ export async function fetchClashImportFromURL(targetURL: string): Promise<ClashI
   }
 
   throw new Error('当前环境不支持 URL 导入 Clash 配置')
+}
+
+export async function importClashProxies(input: ProxyImportClashRequest): Promise<ProxyImportReport> {
+  const bindings: any = await getBindings()
+  if (bindings?.BrowserProxyImportClash) {
+    return (await bindings.BrowserProxyImportClash(input)) || createEmptyImportReport(input.sourceId || '', input.sourceUrl || '')
+  }
+  throw new Error('当前环境不支持后端导入 Clash 订阅')
+}
+
+export async function refreshClashProxySource(input: ProxySourceRefreshRequest): Promise<ProxyImportReport> {
+  const bindings: any = await getBindings()
+  if (bindings?.BrowserProxyRefreshSource) {
+    return (await bindings.BrowserProxyRefreshSource(input)) || createEmptyImportReport(input.sourceId, '')
+  }
+  throw new Error('当前环境不支持后端刷新 Clash 订阅')
+}
+
+export async function reconcileBrowserProxyBindings(): Promise<ProxyReconcileReport> {
+  const bindings: any = await getBindings()
+  if (bindings?.BrowserProxyReconcileBindings) {
+    return (
+      (await bindings.BrowserProxyReconcileBindings()) || {
+        changedProfileCount: 0,
+        reboundProfileCount: 0,
+        invalidProfileCount: 0,
+        invalidProfileIds: [],
+      }
+    )
+  }
+  return {
+    changedProfileCount: 0,
+    reboundProfileCount: 0,
+    invalidProfileCount: 0,
+    invalidProfileIds: [],
+  }
+}
+
+function createEmptyImportReport(sourceId: string, sourceUrl: string): ProxyImportReport {
+  return {
+    sourceId,
+    sourceUrl,
+    added: 0,
+    updated: 0,
+    removed: 0,
+    skipped: 0,
+    failed: 0,
+    affectedProfileCount: 0,
+    reboundProfileCount: 0,
+    invalidProfileCount: 0,
+    importedProxies: [],
+    skippedProxyNames: [],
+    unsupportedProxyNames: [],
+    errors: [],
+  }
 }
 
 export async function saveBrowserProxies(proxies: BrowserProxy[]): Promise<boolean> {

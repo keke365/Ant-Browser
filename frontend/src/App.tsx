@@ -132,6 +132,10 @@ const BookmarkSettingsPage = lazyNamed(
   () => import("./modules/browser/pages/BookmarkSettingsPage"),
   "BookmarkSettingsPage",
 );
+const SiteAccountPage = lazyNamed(
+  () => import("./modules/browser/pages/SiteAccountPage"),
+  "SiteAccountPage",
+);
 const LaunchApiDocsPage = lazyNamed(
   () => import("./modules/browser/pages/LaunchApiDocsPage"),
   "LaunchApiDocsPage",
@@ -430,6 +434,10 @@ function App() {
               <Route
                 path="/browser/bookmarks"
                 element={<BookmarkSettingsPage />}
+              />
+              <Route
+                path="/browser/site-accounts"
+                element={<SiteAccountPage />}
               />
               <Route path="/browser/automation" element={<AutomationPage />} />
               <Route

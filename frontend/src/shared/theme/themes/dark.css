@@ -1,6 +1,8 @@
 /* 深色主题 - 沉稳专业 */
 
 [data-theme='dark'] {
+  --color-scheme: dark;
+
   --color-bg-base: #0c0c0e;
   --color-bg-surface: #18181b;
   --color-bg-elevated: #27272a;

@@ -9,6 +9,7 @@ import (
 	"ant-chrome/backend/internal/launchcode"
 	"ant-chrome/backend/internal/logger"
 	"ant-chrome/backend/internal/proxy"
+	"ant-chrome/backend/internal/siteaccount"
 	"context"
 	"fmt"
 	"os"
@@ -132,6 +133,7 @@ func (a *App) startupInitManagers(cfg *config.Config, db *database.DB) {
 	a.browserMgr.CoreDAO = browser.NewSQLiteCoreDAO(conn)
 	a.browserMgr.BookmarkDAO = browser.NewSQLiteBookmarkDAO(conn)
 	a.browserMgr.GroupDAO = browser.NewSQLiteGroupDAO(conn)
+	a.siteAccountStore = siteaccount.NewStore(conn, a.resolveAppPath("data/secret/site_accounts.key"))
 
 	a.migrateToSQLite()
 

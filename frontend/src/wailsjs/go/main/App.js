@@ -290,6 +290,10 @@ export function BrowserProfileSetKeywords(arg1, arg2) {
   return window['go']['main']['App']['BrowserProfileSetKeywords'](arg1, arg2);
 }
 
+export function BrowserProfileSetProxy(arg1, arg2, arg3) {
+  return window['go']['main']['App']['BrowserProfileSetProxy'](arg1, arg2, arg3);
+}
+
 export function BrowserProfileUpdate(arg1, arg2) {
   return window['go']['main']['App']['BrowserProfileUpdate'](arg1, arg2);
 }
@@ -310,6 +314,10 @@ export function BrowserProxyFetchClashByURL(arg1) {
   return window['go']['main']['App']['BrowserProxyFetchClashByURL'](arg1);
 }
 
+export function BrowserProxyImportClash(arg1) {
+  return window['go']['main']['App']['BrowserProxyImportClash'](arg1);
+}
+
 export function BrowserProxyList() {
   return window['go']['main']['App']['BrowserProxyList']();
 }
@@ -320,6 +328,18 @@ export function BrowserProxyListByGroup(arg1) {
 
 export function BrowserProxyListGroups() {
   return window['go']['main']['App']['BrowserProxyListGroups']();
+}
+
+export function BrowserProxyListSources() {
+  return window['go']['main']['App']['BrowserProxyListSources']();
+}
+
+export function BrowserProxyReconcileBindings() {
+  return window['go']['main']['App']['BrowserProxyReconcileBindings']();
+}
+
+export function BrowserProxyRefreshSource(arg1) {
+  return window['go']['main']['App']['BrowserProxyRefreshSource'](arg1);
 }
 
 export function BrowserProxyTestSpeed(arg1) {
@@ -484,6 +504,74 @@ export function SaveProxyCheckSettings(arg1) {
 
 export function SetLogLevel(arg1) {
   return window['go']['main']['App']['SetLogLevel'](arg1);
+}
+
+export function SiteAccountDelete(arg1) {
+  return window['go']['main']['App']['SiteAccountDelete'](arg1);
+}
+
+export function SiteAccountGet(arg1, arg2) {
+  return window['go']['main']['App']['SiteAccountGet'](arg1, arg2);
+}
+
+export function SiteAccountList(arg1) {
+  return window['go']['main']['App']['SiteAccountList'](arg1);
+}
+
+export function SiteAccountListByProfile(arg1) {
+  return window['go']['main']['App']['SiteAccountListByProfile'](arg1);
+}
+
+export function SiteAccountQuickOpen(arg1, arg2) {
+  return window['go']['main']['App']['SiteAccountQuickOpen'](arg1, arg2);
+}
+
+export function SiteAccountRunCheckin(arg1) {
+  return window['go']['main']['App']['SiteAccountRunCheckin'](arg1);
+}
+
+export function SiteAccountRunCheckinByID(arg1) {
+  return window['go']['main']['App']['SiteAccountRunCheckinByID'](arg1);
+}
+
+export function SiteAccountRunReading(arg1) {
+  return window['go']['main']['App']['SiteAccountRunReading'](arg1);
+}
+
+export function SiteAccountRunReadingByID(arg1) {
+  return window['go']['main']['App']['SiteAccountRunReadingByID'](arg1);
+}
+
+export function SiteAccountSave(arg1) {
+  return window['go']['main']['App']['SiteAccountSave'](arg1);
+}
+
+export function SiteAccountTaskRunList(arg1, arg2) {
+  return window['go']['main']['App']['SiteAccountTaskRunList'](arg1, arg2);
+}
+
+export function SiteDelete(arg1) {
+  return window['go']['main']['App']['SiteDelete'](arg1);
+}
+
+export function SiteGet(arg1) {
+  return window['go']['main']['App']['SiteGet'](arg1);
+}
+
+export function SiteList() {
+  return window['go']['main']['App']['SiteList']();
+}
+
+export function SiteRunCheckin(arg1) {
+  return window['go']['main']['App']['SiteRunCheckin'](arg1);
+}
+
+export function SiteRunReading(arg1) {
+  return window['go']['main']['App']['SiteRunReading'](arg1);
+}
+
+export function SiteSave(arg1) {
+  return window['go']['main']['App']['SiteSave'](arg1);
 }
 
 export function StartInstance(arg1) {
